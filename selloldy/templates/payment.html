@@ -1,0 +1,184 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="static/css/checkout.css">
+    </head>
+ <header>
+    <div class="container">
+      <div class="navigation">
+
+        <div class="logo">
+          <i class="icon icon-basket"></i>shop42</div>
+        <div class="secure">
+          <i class="icon icon-shield"></i>
+          <span>Secure Checkout</span>
+
+        </div>
+      </div>
+      <div class="notification">
+        Complete Your Purchase
+      </div>
+    </div>
+  </header>
+  <section class="content">
+
+    <div class="container">
+
+    </div>
+    <div class="details shadow">
+      <div class="details__item">
+
+        <div class="item__image">
+          <img class="iphone" src="static/media/{{ send_product.product_image}}" alt="">
+        </div>
+        <div class="item__details">
+          <div class="item__title">
+            {{ send_product.product_name}}
+          </div>
+          <div class="item__price">
+            {{ send_product.product_price}} paise
+          </div>
+          <div class="item__quantity">
+            Quantity: 1
+          </div>
+          <div class="item__description">
+            <ul style="">
+              <li>Super fast and power efficient</li>
+              <li>A lot of fast memory</li>
+              <li>High resolution camera</li>
+              <li>Smart tools for health and traveling and more</li>
+              <li>Share your games and achievements with your friends via Group Play</li>
+            </ul>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+    <div class="discount"></div>
+
+    <div class="container">
+      <div class="payment">
+        <div class="payment__title">
+          Payment Method
+        </div>
+        <div class="payment__types">
+          <div class="payment__type payment__type--cc active">
+            <i class="icon icon-credit-card"></i>Provider name
+            <div>
+                {{ send_provider.name }}<br>
+
+            </div>
+        </div>
+           
+          <div class="payment__type payment__type--paypal">
+            <i class="icon icon-paypal"></i>Provider City
+            <div>
+                {{ send_provider.name }}<br>
+
+            </div>
+        </div>
+          <div class="payment__type payment__type--paypal">
+            <i class="icon icon-wallet"></i>SEPA</div>
+          <div class="payment__type payment__type--paypal">
+            <i class="icon icon-note"></i>Invoice</div>
+        </div>
+
+          <div class="payment__shipping">
+            <div class="payment__title">
+              <i class="icon icon-plane"></i> Shiping Information
+            </div>
+            <div class="details__user">
+              <div class="user__name">John Doe
+                <br> 13/03/1980</div>
+              <div class="user__address">Shipping Address: 22 Street, Address
+                <br>Country</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="actions">
+
+        <button class="btn action__submit" id="rzp-button1">Place your Order
+          <i class="icon icon-arrow-right-circle"></i>
+        </button>
+        <a href="#" class="backBtn">Go Back to Shop</a>
+
+      </div>
+  </section>
+  </div>
+  <input type="hidden" id="name" value="{{ persnal_name }}">
+  <input type="hidden" id="email" value="{{ persnal_email }}">
+  <input type="hidden" id="contact" value="{{ persnal_contact }}">
+  <input type="hidden" id="pid" value="{{ pid }}">
+  <input type="hidden" id="proid" value="{{ proid }}">
+
+{% comment %}  {% endcomment %}
+<button id="rzp-button1">Pay</button>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  var name=document.getElementById('name').value;
+  var email=document.getElementById('email').value;
+  var contact=document.getElementById('contact').value;
+    var options = {
+        "key": "rzp_test_RDvbeWiAcblyiP", // Enter the Key ID generated from the Dashboard
+        "amount": "{{send_product.product_price}}", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        "currency": "INR",
+        "name": '{{persnal_name}}',
+        "description": "Test Transaction",
+        "image": "https://example.com/your_logo",
+        //"order_id": "{{ id }}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 2
+        "handler": function(response) {
+            //alert(response.razorpay_payment_id);
+            //alert(response.razorpay_order_id);
+            //alert(response.razorpay_signature);
+            response.razorpay_payment_id;
+            response.razorpay_order_id;
+            response.razorpay_signature;
+            var pid=document.getElementById('pid').value;
+            var fid=document.getElementById('fid').value;
+            alert('payment Successfull');
+            $.ajax({
+              url:"history",
+              type:"GET",
+              data:{"orderid":response.razorpay_order_id,"paymentid":response.razorpay_payment_id,"signature":response.razorpay_signature,"productid":pid,"from_to":fid}
+              success:function(data){
+
+              }
+
+            });
+
+
+
+        },
+        "prefill": {
+            "name": name,
+            "email":email,
+            "contact": contact
+        },
+        "notes": {
+            "address": "Razorpay Corporate Office"
+        },
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.on('payment.failed', function(response) {
+        alert(response.error.code);
+        alert(response.error.description);
+        alert(response.error.source);
+        alert(response.error.step);
+        alert(response.error.reason);
+        alert(response.error.metadata.order_id);
+        alert(response.error.metadata.payment_id);
+    });
+    document.getElementById('rzp-button1').onclick = function(e) {
+        rzp1.open();
+        e.preventDefault();
+    }
+</script>
+</html>
